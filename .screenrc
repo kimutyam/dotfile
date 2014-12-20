@@ -1,0 +1,26 @@
+#ターミナル
+#termcapinfo xterm 'is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;4;6l'
+#termcapinfo xterm-256color 'is=^[r^[mJ^[H^[?7h^[?1;4;6l'
+
+# ハングアップしたときにscreenは自動的にデタッチ
+
+escape ^Tt
+altscreen on
+autodetach on
+term xterm-256color
+
+
+termcapinfo xterm*  'Co#256:pa#32767:AB=\E[48;5;%dm:AF=\E[38;5;%dm:'
+termcapinfo xterm* 'is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;4;6l'
+caption always "%?%F%{= rk}%:%{= kc}%?%-w%{=u kr}%n %t%{-}%+w %= %{= rk}%Y/%m/%d %{= rk}%c"
+bind w windowlist -b
+vbell off
+defmonitor on
+defkanji utf-8
+defencoding utf-8
+encoding utf8 utf-8
+defscrollback 10000
+bind r eval 'echo "Resize window"' 'command -c resize'
+bind -c resize ^T command
+bind -c resize j eval 'resize +3' 'command -c resize'
+bind -c resize k eval 'resize -3' 'command -c resize'
