@@ -1,0 +1,13 @@
+[user]
+	email = devkimura@gmail.com
+	name = kimutyam
+[core]
+	editor = vim
+[color]
+	ui = auto
+[merge]
+	tool = vimdiff
+[alias]
+	st = status
+	co = checkout
+	ci = commit
