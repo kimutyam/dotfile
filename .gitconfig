@@ -11,3 +11,8 @@
 	st = status
 	co = checkout
 	ci = commit
+    br = branch
+[pull]
+    rebase = true
+[push]
+	autoSetupRemote = true
