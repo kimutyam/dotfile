@@ -1,65 +1,131 @@
-#補完機能
-autoload -U compinit
-compinit
+source ~/.zplug/init.zsh
 
-# プロンプトに色をつける
-autoload -U colors
-colors
+# Make sure to use double quotes
+zplug "zsh-users/zsh-history-substring-search"
 
-# VCSの情報を取得するzshの関数
-autoload -Uz vcs_info
+# Use the package as a command
+# And accept glob patterns (e.g., brace, wildcard, ...)
+zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 
-# 表示フォーマットの指定
-# %b ブランチ情報
-# %a アクション名(mergeなど)
-zstyle ':vcs_info:*' formats '[%b]'
-zstyle ':vcs_info:*' actionformats '[%b|%a]'
-precmd () {
-	psvar=()
-	LANG=en_US.UTF-8 vcs_info
-	[[ -n "$vcs_info_msg_0_" ]] && psvar[1]="$vcs_info_msg_0_"
-}
+# Can manage everything e.g., other person's zshrc
+zplug "tcnksm/docker-alias", use:zshrc
 
-# バージョン管理されているディレクトリにいれば表示，そうでなければ非表示
-RPROMPT=" %~ %1(v|%F{green}%1v%f|)"
+# Disable updates using the "frozen" tag
+zplug "k4rthik/git-cal", as:command, frozen:1
 
-#文字コード
-export LANG=ja_JP.UTF-8
+# Grab binaries from GitHub Releases
+# and rename with the "rename-to:" tag
 
-#エイリアス
-alias ll='ls -l'
-alias la='ls -a'
-alias lsa='ls -ld .*'
-alias hs='history'
-alias vi='vim'
-alias rm='rm -i'
+# zplug "junegunn/fzf", \
+#    from:gh-r, \
+#    as:command, \
+#    use:"*darwin*amd64*"
 
+# Supports oh-my-zsh plugins and the like
+zplug "plugins/git",   from:oh-my-zsh
 
-#プロンプト
-PROMPT='%m%# '
-#RPROMPT=' %~'
+# Also prezto
+zplug "modules/prompt", from:prezto
 
-#ヒストリー
-HISTSIZE=2000
-SAVEHIST=10000
-HISTFILE=~/.zhistory
+# Load if "if" tag returns true
+zplug "lib/clipboard", from:oh-my-zsh, if:"[[ $OSTYPE == *darwin* ]]"
 
-#スタック
-DIRSTACKSIZE=20
+# Run a command after a plugin is installed/updated
+# Provided, it requires to set the variable like the following:
+# ZPLUG_SUDO_PASSWORD="********"
+zplug "jhawthorn/fzy", \
+    as:command, \
+    rename-to:fzy, \
+    hook-build:"make && sudo make install"
 
-#キーバインド
-#bindkey -v
+# Supports checking out a specific branch/tag/commit
+zplug "b4b4r07/enhancd", at:v1
+zplug "mollifier/anyframe", at:4c23cb60
 
-setopt auto_cd
-setopt auto_pushd pushd_ignore_dups
-#setopt correct
-setopt share_history extended_history inc_append_history
-setopt nobeep
+# Can manage gist file just like other packages
+zplug "b4b4r07/79ee61f7c140c63d2786", \
+    from:gist, \
+    as:command, \
+    use:get_last_pane_path.sh
 
-#色の設定
-export LSCOLORS=gxfxxxxxcxxxxxxxxxgxgx
-export LS_COLORS='di=01;36:ln=01;35:ex=01;32'
-zstyle ':completion:*' list-colors 'di=36' 'ln=35' 'ex=32'
+# Support bitbucket
+zplug "b4b4r07/hello_bitbucket", \
+    from:bitbucket, \
+    as:command, \
+    use:"*.sh"
 
-#todo doxygenとAndroidは別管理にした方がいい
-PATH=${PATH}:/usr/local/share:/usr/share/php:/:/Applications/Doxygen.app/Contents/Resources/
+# Rename a command with the string captured with `use` tag
+zplug "b4b4r07/httpstat", \
+    as:command, \
+    use:'(*).sh', \
+    rename-to:'$1'
+
+# Group dependencies
+# Load "emoji-cli" if "jq" is installed in this example
+
+# zplug "stedolan/jq", \
+#    from:gh-r, \
+#    as:command, \
+#    rename-to:jq
+
+zplug "b4b4r07/emoji-cli", \
+    on:"stedolan/jq"
+# Note: To specify the order in which packages should be loaded, use the defer
+#       tag described in the next section
+
+# Set the priority when loading
+# e.g., zsh-syntax-highlighting must be loaded
+# after executing compinit command and sourcing other plugins
+# (If the defer tag is given 2 or above, run after compinit command)
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
+
+# Can manage local plugins
+zplug "~/.zsh", from:local
+
+# Load theme file
+zplug 'dracula/zsh', as:theme
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+# Then, source plugins and add commands to $PATH
+zplug load --verbose
+
+# git-completionの読み込み
+fpath=(~/.zsh $fpath)
+zstyle ':completion:*:*:git:*' script ~/.zsh/git-completion.bash
+autoload -Uz compinit && compinit
+
+source ~/.zsh/git-prompt.sh
+
+# プロンプトのオプション表示設定
+GIT_PS1_SHOWDIRTYSTATE=true
+GIT_PS1_SHOWUNTRACKEDFILES=true
+GIT_PS1_SHOWSTASHSTATE=true
+GIT_PS1_SHOWUPSTREAM=auto
+
+# プロンプトの表示設定(好きなようにカスタマイズ可)
+setopt PROMPT_SUBST ; PS1='%F{green}%n@%m%f: %F{cyan}%~%f %F{red}$(__git_ps1 "(%s)")%f
+\$ '
+
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv virtualenv-init -)"
+
+# direnv
+eval "$(direnv hook zsh)"
+
+# nodenv
+export PATH="$HOME/.nodenv/bin:$PATH"
+eval "$(nodenv init -)"
+
+# editorconfig
+alias ec='editorconfig-checker'
+
