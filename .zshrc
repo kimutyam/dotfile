@@ -128,14 +128,6 @@ alias ec='editorconfig-checker'
 export PATH="/Users/akihiro_kimura/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
 
-# pnpm
-export PNPM_HOME="/Users/akihiro_kimura/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
@@ -145,3 +137,11 @@ eval "$(pyenv init - zsh)"
 # mise
 eval "$(mise activate zsh)"
 # mise end
+
+# pnpm
+export PNPM_HOME="/Users/akihiro_kimura/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
